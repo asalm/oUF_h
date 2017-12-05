@@ -1,0 +1,11 @@
+## Interface: 70300
+## Author: HealTree
+## Version: 0.5
+## Title: oUF |cff90A4AEh|r
+## Notes: Minimalistic layout
+## RequiredDeps: oUF
+
+config.lua
+tags.lua
+oUF_h.lua
+
