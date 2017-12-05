@@ -2,14 +2,30 @@ local _, ns = ...
 --get Config out of the Namespace
 local cfg = ns.config
 
+local function HideIcon(self)
+    local unit = self.unit
+    --local time = self.StringParent.Time
+    if (not (UnitCastingInfo(unit) or UnitChannelInfo(unit))) then
+        UIFrameFadeOut(self.cbIconParent,0.8,self.cbIconParent:GetAlpha(),0)
+        --UIFrameFadeOut(self.StringParent.Time,0.5,self.StringParent.Time:GetAlpha(),0)
+        --self.cbIconParent:SetAlpha(0)
+        --self.StringParent.Time:SetAlpha(0)
+    else
+        --self.cbIconParent:SetAlpha(1)
+        --self.StringParent.Time:SetAlpha(1)
+        UIFrameFadeIn(self.cbIconParent,0.3,self.cbIconParent:GetAlpha(),1)
+        --UIFrameFadeOut(self.StringParent.Time,0.1,self.StringParent.Time:GetAlpha(),1)
+    end
+end
+
 local function Fader(self)
     local unit = self.unit
 
-    if (UnitAffectingCombat("player")) 
+    if (not UnitAffectingCombat("player")) 
     then
-        UIFrameFadeIn(self, 0.6, self:GetAlpha(), 1)
-    else
         UIFrameFadeOut(self, 0.6, self:GetAlpha(), 0.3)
+    else
+        UIFrameFadeIn(self, 0.6, self:GetAlpha(), 1)
     end
 end
 
@@ -52,14 +68,38 @@ local UnitSpecific = {
         }
         --Castbar
         local Castbar = CreateFrame('StatusBar', nil, self)
-        Castbar:SetSize(206, 26)
+        Castbar:SetSize(206, 25)
         Castbar:SetStatusBarTexture(cfg.texture)
         Castbar:SetStatusBarColor(1,1,1)
         Castbar:SetFrameLevel(1)
         Castbar:SetAlpha(.5)
-        Castbar:SetPoint("CENTER",self.Health,"CENTER",-1,0)
+        Castbar:SetPoint("CENTER",self.Health,"CENTER",0,0)
+        
+        local Icon = self.cbIconParent:CreateTexture(nil, 'OVERLAY')
+        Icon:SetAlpha(1)
+        Icon:SetSize(20, 20)
+        Icon:SetTexCoord(0.08, 0.8, 0.08, 0.8)
+        Icon:SetPoint('RIGHT', Castbar, 'LEFT',-10,0)
 
+        -- Add a timer
+        local Time = self.cbIconParent:CreateFontString(nil, 'OVERLAY')
+        Time:SetFont(cfg.font,18,"THINOUTLINE")
+        Time:SetPoint('RIGHT', self.Health,-5,0)
+        --bind time to stringparent
+        self.StringParent.Time = Time
+        Castbar.Icon = Icon
+        Castbar.Time = Time
         self.Castbar = Castbar
+
+        local gcdbar = CreateFrame('StatusBar', nil, self)
+        gcdbar:SetSize(206, 26)
+        gcdbar:SetStatusBarTexture(cfg.texture)
+        gcdbar:SetStatusBarColor(1,1,1)
+        gcdbar:SetFrameLevel(1)
+        gcdbar:SetAlpha(.5)
+        gcdbar:SetPoint("CENTER",self.Health,"CENTER",0,0)
+
+        self.GCD = gcdbar
 
         if(cfg.numbers) then
             local pp = self.StringParent:CreateFontString(nil, 'OVERLAY')
@@ -112,12 +152,19 @@ local Shared = function(self, unit)
     self:RegisterForClicks('AnyUp')
     self:SetScript('OnEnter', UnitFrame_OnEnter)
     self:SetScript('OnLeave', UnitFrame_OnLeave)
-    self:SetSize(300,20)
+    self:SetSize(200,20)
 
     -- We create a parent for strings so that they appear above everything else
     local StringParent = CreateFrame('Frame', nil, self)
+    StringParent:SetSize(20,20)
     StringParent:SetFrameLevel(20)
     self.StringParent = StringParent
+    -- We create a parent to hold castbar icons
+    local cbIconParent = CreateFrame('Frame', nil, self)
+    cbIconParent:SetSize(20,20)
+    cbIconParent:SetFrameLevel(10)
+    self.cbIconParent = cbIconParent
+    self:RegisterEvent("CURRENT_SPELL_CAST_CHANGED", HideIcon)
     self:RegisterEvent("PLAYER_ENTERING_WORLD", Fader)
     self:RegisterEvent('PLAYER_REGEN_ENABLED', Fader)
     self:RegisterEvent('PLAYER_REGEN_DISABLED', Fader)

@@ -1,10 +1,11 @@
 ## Interface: 70300
 ## Author: HealTree
-## Version: 0.5
+## Version: 0.6
 ## Title: oUF |cff90A4AEh|r
 ## Notes: Minimalistic layout
 ## RequiredDeps: oUF
 
+modules\oUF_GCD.lua
 config.lua
 tags.lua
 oUF_h.lua
