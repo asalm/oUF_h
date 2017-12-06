@@ -1,6 +1,7 @@
 local _, ns = ...
 --get Config out of the Namespace
 local cfg = ns.config
+local ah = ns.aurahelpers
 
 local function HideIcon(self)
     local unit = self.unit
@@ -43,7 +44,7 @@ local UnitSpecific = {
         -- Add a background
         local Background = Power:CreateTexture(nil, 'BACKGROUND')
         Background:SetAllPoints(Power)
-        Background:SetTexture(1, 1, 1,.5)
+        Background:SetTexture(0.9, 0.9, 0.9,.5)
         Background:SetAlpha(1)
         -- Options
         Power.frequentUpdates = true
@@ -85,8 +86,11 @@ local UnitSpecific = {
         local Time = self.cbIconParent:CreateFontString(nil, 'OVERLAY')
         Time:SetFont(cfg.font,18,"THINOUTLINE")
         Time:SetPoint('RIGHT', self.Health,-5,0)
+
+        local Safezone = Castbar:CreateTexture(nil, 'OVERLAY')
         --bind time to stringparent
         self.StringParent.Time = Time
+        Castbar.SafeZone = Safezone
         Castbar.Icon = Icon
         Castbar.Time = Time
         self.Castbar = Castbar
@@ -132,6 +136,24 @@ local UnitSpecific = {
             hp:SetFont(cfg.font,18,"THINOUTLINE")
             self:Tag(hp, '[h:hp]')
         end
+
+        local Auras = CreateFrame('Frame', nil, self)
+                Auras.gap = true
+                Auras.size = 20
+                Auras:SetHeight(60)
+                Auras:SetWidth(200)
+                Auras:SetPoint('BOTTOMLEFT', self.Health, 'TOPLEFT', 0, 10)
+                Auras.initialAnchor = 'BOTTOMLEFT'
+                Auras['growth-x'] = 'RIGHT'
+                Auras['growth-y'] = 'UP'
+                Auras.numBuffs = cfg.numBuffs
+                Auras.numDebuffs = cfg.numDebuffs
+                Auras.spacing = 2
+                Auras.showStealableBuffs = true
+
+                Auras.PostCreateIcon = ns.UpdateAuraIcon
+                Auras.PostUpdateIcon = ns.PostUpdateIcon
+                self.Auras = Auras
 
     end,
      
@@ -194,8 +216,8 @@ local Shared = function(self, unit)
     -- Add a background
     local Background = Health:CreateTexture(nil, 'BACKGROUND')
     Background:SetAllPoints()
-    Background:SetTexture(1, 1, 1)
-    Background:SetColorTexture(0,0,0)
+    Background:SetTexture(texture)
+    Background:SetColorTexture(0.1,0.1,0.1,1)
     Background:SetAlpha(1)
     -- Make the background darker.
     --Background.multiplier = .5
@@ -231,7 +253,7 @@ oUF:Factory(function(self)
      self:SetActiveStyle("plainsimple")
      self:Spawn("target"):SetPoint("CENTER", 0, -150)
      self:Spawn("player"):SetPoint('CENTER', 0, -180)
-     self:Spawn("targettarget"):SetPoint("RIGHT", oUF_plainsimpleTarget,"LEFT", 120,0)
+     self:Spawn("targettarget"):SetPoint("RIGHT", oUF_plainsimpleTarget,"LEFT", 15,0)
 
      -- oUF:SpawnHeader(overrideName, overrideTemplate, visibility, attributes ...)
      local party = self:SpawnHeader(nil, nil, 'raid,party,solo',

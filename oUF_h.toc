@@ -6,6 +6,7 @@
 ## RequiredDeps: oUF
 
 modules\oUF_GCD.lua
+modules\aurahelper.lua
 config.lua
 tags.lua
 oUF_h.lua
