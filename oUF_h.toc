@@ -5,9 +5,9 @@
 ## Notes: Minimalistic layout
 ## RequiredDeps: oUF
 
+config.lua
 modules\oUF_GCD.lua
 modules\aurahelper.lua
-config.lua
 tags.lua
 oUF_h.lua
 

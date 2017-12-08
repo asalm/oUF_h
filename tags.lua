@@ -24,6 +24,22 @@ oUF.Tags.Methods['h:pp'] = function(unit)
 	end
 end
 
+oUF.Tags.Events["h:hpcper"] = "UNIT_HEALTH"
+oUF.Tags.Methods["h:hpcper"] = function(unit)
+	--if(not unit == "target")
+	local max = UnitHealthMax(unit)
+	local hp = UnitHealth(unit)
+	local percent = math.floor(hp / max * 100 + .5)
+	local returnvalue
+	if(percent > 80) then
+		return "|cffffffff"..percent.."|r" --returnvalue
+	elseif ((percent <= 80) and (percent > 30)) then
+		return "|cffCDDC39"..percent.."|r"
+	elseif (percent < 30) then
+		return "|cffD50000"..percent.."|r"
+	end
+end
+
 oUF.Tags.Events["h:hp"] = "UNIT_HEALTH"
 oUF.Tags.Methods["h:hp"] = function(unit)
     if not UnitIsDeadOrGhost(unit) then

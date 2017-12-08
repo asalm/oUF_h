@@ -44,7 +44,8 @@ local UnitSpecific = {
         -- Add a background
         local Background = Power:CreateTexture(nil, 'BACKGROUND')
         Background:SetAllPoints(Power)
-        Background:SetTexture(0.9, 0.9, 0.9,.5)
+        Background:SetTexture(texture)
+        Background:SetColorTexture(0,0,0)
         Background:SetAlpha(1)
         -- Options
         Power.frequentUpdates = true
@@ -149,6 +150,7 @@ local UnitSpecific = {
                 Auras.numBuffs = cfg.numBuffs
                 Auras.numDebuffs = cfg.numDebuffs
                 Auras.spacing = 2
+                Auras.disableCooldown = cfg.BuffCooldowns
                 Auras.showStealableBuffs = true
 
                 Auras.PostCreateIcon = ns.UpdateAuraIcon
@@ -158,13 +160,46 @@ local UnitSpecific = {
     end,
      
         party = function(self)
-        if(cfg.partyframe) then
+        --local PartyAnchor = CreateFrame("Frame",nil,self)
+        --PartyAnchor:SetSize(40,40)
+        --PartyAnchor:SetTexture(texture)
+        --PartyAnchor:SetTextureColor(1,1,1)
+
+    --    local Health = CreateFrame('StatusBar', nil, self)
+   
+    --    Health:SetSize(200,20)
+    --    Health:SetPoint("CENTER")
+    --    Health:SetStatusBarTexture(cfg.texture)
+    --    Health:SetStatusBarColor(1, 0, 0)
+    --    Health:SetReverseFill(false)
+    --    Health:SetFrameLevel(2)
+    --        Health:SetAlpha(0.5)
+    --Health.frequentUpdates = true
+    --Health:SetReverseFill(true)
+
+    --self.Health = Health
+    
+        if(cfg.party) then
+            -- Position and size
+            local GroupRoleIndicator = self:CreateTexture(nil, 'OVERLAY')
+            GroupRoleIndicator:SetSize(16, 16)
+            GroupRoleIndicator:SetPoint('LEFT', self)
+
+            -- Register it with oUF
+            self.GroupRoleIndicator = GroupRoleIndicator    
             -- Party specific layout code.
-            local Name = self.StringParent:CreateFontString(nil, 'OVERLAY')
-            Name:SetPoint('LEFT',self,"RIGHT", 0, 0)
-            Name:SetFont(cfg.font,12,"THINOUTLINE")
+            local PartyName = self.StringParent:CreateFontString(nil, 'OVERLAY')
+            PartyName:SetPoint('LEFT',self.GroupRoleIndicator,"LEFT", 20, 0)
+            PartyName:SetFont(cfg.font,12,"THINOUTLINE")
+            self.PartyName = PartyName
             
-            self:Tag(Name, '[name]')     
+            self:Tag(PartyName, '[raidcolor][name]')
+
+            local partyHP = self.StringParent:CreateFontString(nil, 'OVERLAY')
+            partyHP:SetPoint("LEFT",self.PartyName,"RIGHT",0,0)
+            partyHP:SetFont(cfg.font, 12, "THINOUTLINE")
+            self:Tag(partyHP, '[h:hpcper]')
+            
         end
         end,
 }
@@ -262,6 +297,6 @@ oUF:Factory(function(self)
           'showParty', true, 
           'showPlayer', true, 
           'yOffset', -10
-     ):SetPoint("LEFT", UIParent, "TOPLEFT", -200, -10)
+     ):SetPoint("TOPLEFT", UIParent, "TOPLEFT", 10, -10)
      --party:
 end)
