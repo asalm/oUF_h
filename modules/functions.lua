@@ -34,6 +34,16 @@ local function UpdateAura(self, elapsed)
 		end
 	end
 end
+
+function ns:PostCastbarUpdate(element, unit)
+	--local cb = element.Castbar
+	if(not element.isInterruptable)then
+		self.cbIconParent.Shield:SetAlpha(1)
+	else
+		self.cbIconParent.Shield:SetAlpha(0)
+	end
+end
+
 function ns:PostUpdateIcon(unit, button,index)
     button.icon:SetAlpha(1)
     if (unit == 'target') then

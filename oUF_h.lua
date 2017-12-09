@@ -81,7 +81,7 @@ local UnitSpecific = {
         Icon:SetAlpha(1)
         Icon:SetSize(20, 20)
         Icon:SetTexCoord(0.08, 0.8, 0.08, 0.8)
-        Icon:SetPoint('RIGHT', Castbar, 'LEFT',-10,0)
+        Icon:SetPoint('RIGHT', Castbar, 'LEFT',-5,0)
 
         -- Add a timer
         local Time = self.cbIconParent:CreateFontString(nil, 'OVERLAY')
@@ -137,6 +137,37 @@ local UnitSpecific = {
             hp:SetFont(cfg.font,18,"THINOUTLINE")
             self:Tag(hp, '[h:hp]')
         end
+        local Castbar = CreateFrame('StatusBar', nil, self)
+        Castbar:SetSize(206, 25)
+        Castbar:SetStatusBarTexture(cfg.texture)
+        Castbar:SetStatusBarColor(1,1,1)
+        Castbar:SetFrameLevel(1)
+        Castbar:SetAlpha(.5)
+        Castbar:SetPoint("CENTER",self.Health,"CENTER",0,0)
+        
+        local Icon = self.cbIconParent:CreateTexture(nil, 'OVERLAY')
+        Icon:SetAlpha(1)
+        Icon:SetSize(20, 20)
+        Icon:SetTexCoord(0.08, 0.8, 0.08, 0.8)
+        Icon:SetPoint('RIGHT', Castbar, 'LEFT',-5,0)
+
+        
+        local Shield = self.cbIconParent:CreateTexture(nil, 'OVERLAY')
+        --Shield:SetPoint()
+        Shield:SetTexture(texture)
+        Shield:SetSize(40,40)
+        Shield:SetAlpha(0)
+        --Shield:SetSize(30, 60)
+        Shield:SetPoint('RIGHT', Castbar, 'LEFT', -5, 0)
+        Castbar.interruptIcon = Shield
+        Castbar.Icon = Icon
+        --Castbar.Shield = Shield
+        Castbar.Time = Time
+        self.Castbar = Castbar
+        Castbar.PostCastStart = ns.PostCastbarUpdate
+        Castbar.PostCastInterruptible = ns.PostCastbarUpdate
+        Castbar.PostCastNotInterruptible = ns.PostCastbarUpdate
+        Castbar.PostChannelStart = ns.PostCastbarUpdate
 
         local Auras = CreateFrame('Frame', nil, self)
                 Auras.gap = true
@@ -160,24 +191,6 @@ local UnitSpecific = {
     end,
      
         party = function(self)
-        --local PartyAnchor = CreateFrame("Frame",nil,self)
-        --PartyAnchor:SetSize(40,40)
-        --PartyAnchor:SetTexture(texture)
-        --PartyAnchor:SetTextureColor(1,1,1)
-
-    --    local Health = CreateFrame('StatusBar', nil, self)
-   
-    --    Health:SetSize(200,20)
-    --    Health:SetPoint("CENTER")
-    --    Health:SetStatusBarTexture(cfg.texture)
-    --    Health:SetStatusBarColor(1, 0, 0)
-    --    Health:SetReverseFill(false)
-    --    Health:SetFrameLevel(2)
-    --        Health:SetAlpha(0.5)
-    --Health.frequentUpdates = true
-    --Health:SetReverseFill(true)
-
-    --self.Health = Health
     
         if(cfg.party) then
             -- Position and size
@@ -202,14 +215,57 @@ local UnitSpecific = {
             
         end
         end,
-}
+        raid = function(self)
+        if (cfg.raid) then
+
+            local sqHealth = CreateFrame('StatusBar', nil, self)
+            sqHealth:SetSize(50,50)
+            sqHealth:SetTexture(texture)
+            sqHealth:SetReverseFill(false)
+            sqHealth:SetFrameLevel(2)
+            sqHealth:SetAlpha(1)
+            sqHealth.frequentUpdates = true
+            sqHealth:SetReverseFill(true)
+            sqHealth.PostUpdate = function(sqHealth, unit, min, max)
+                sqHealth:SetValue(max - Health:GetValue())
+            end
+            self.Health = sqHealth
+
+            -- Add a background
+            local Background = sqHealth:CreateTexture(nil, 'BACKGROUND')
+            Background:SetAllPoints()
+            Background:SetTexture(texture)
+            Background:SetColorTexture(0.1,0.1,0.1,1)
+            Background:SetAlpha(1)
+
+            -- Register it with oUF
+            sqHealth.bg = Background
+            -- Options
+            sqHealth.frequentUpdates = true
+            sqHealth.colorTapping = true
+            sqHealth.colorDisconnected = true
+
+            sqHealth.colorHealth = false
+            sqHealth.colorClass = false
+            sqHealth.colorReaction = false
+            
+            --[hpcper] in center
+        end
+        end,
+}   
 
 local Shared = function(self, unit)
     -- general
     self:RegisterForClicks('AnyUp')
     self:SetScript('OnEnter', UnitFrame_OnEnter)
     self:SetScript('OnLeave', UnitFrame_OnLeave)
+    if(unit == "player" or unit == "target") then
     self:SetSize(200,20)
+    elseif (unit == "targettarget" or unit == "focus") then
+        self:SetSize(100,20)
+    else
+        self:SetSize(50,20)
+    end
 
     -- We create a parent for strings so that they appear above everything else
     local StringParent = CreateFrame('Frame', nil, self)
@@ -288,7 +344,7 @@ oUF:Factory(function(self)
      self:SetActiveStyle("plainsimple")
      self:Spawn("target"):SetPoint("CENTER", 0, -150)
      self:Spawn("player"):SetPoint('CENTER', 0, -180)
-     self:Spawn("targettarget"):SetPoint("RIGHT", oUF_plainsimpleTarget,"LEFT", 15,0)
+     self:Spawn("targettarget"):SetPoint("RIGHT", oUF_plainsimpleTarget,"LEFT", -20,0)
 
      -- oUF:SpawnHeader(overrideName, overrideTemplate, visibility, attributes ...)
      local party = self:SpawnHeader(nil, nil, 'raid,party,solo',

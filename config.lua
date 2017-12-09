@@ -8,4 +8,4 @@ config.numbers = true
 config.party = true
 config.numBuffs = 8
 config.numDebuffs = 10
-config.BuffCooldowns = false
+config.BuffCooldowns = true
