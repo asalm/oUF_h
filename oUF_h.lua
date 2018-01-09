@@ -22,7 +22,7 @@ end
 local function Fader(self)
     local unit = self.unit
 
-    if (not UnitAffectingCombat("player")) 
+    if (not UnitAffectingCombat("player") and not UnitExists("target")) 
     then
         UIFrameFadeOut(self, 0.6, self:GetAlpha(), 0.3)
     else
@@ -36,7 +36,7 @@ local UnitSpecific = {
         -- Position and size
         local Power = CreateFrame('StatusBar', nil, self)
         Power:SetSize(100, 20)
-        Power:SetPoint("LEFT",self.Health,"RIGHT",30,0)
+        Power:SetPoint("LEFT",self.Health,"RIGHT",25,0)
         Power:SetReverseFill(false)
         Power:SetStatusBarTexture(cfg.texture)
         Power:SetAlpha(1)
@@ -81,12 +81,12 @@ local UnitSpecific = {
         Icon:SetAlpha(1)
         Icon:SetSize(20, 20)
         Icon:SetTexCoord(0.08, 0.8, 0.08, 0.8)
-        Icon:SetPoint('RIGHT', Castbar, 'LEFT',-5,0)
+        Icon:SetPoint('LEFT', Castbar, 'RIGHT',-23,0)
 
         -- Add a timer
         local Time = self.cbIconParent:CreateFontString(nil, 'OVERLAY')
-        Time:SetFont(cfg.font,18,"THINOUTLINE")
-        Time:SetPoint('RIGHT', self.Health,-5,0)
+        Time:SetFont(cfg.font,cfg.smallfontsize,"THINOUTLINE")
+        Time:SetPoint('RIGHT', self.Health,-30,0)
 
         local Safezone = Castbar:CreateTexture(nil, 'OVERLAY')
         --bind time to stringparent
@@ -109,32 +109,32 @@ local UnitSpecific = {
         if(cfg.numbers) then
             local pp = self.StringParent:CreateFontString(nil, 'OVERLAY')
             pp:SetPoint('RIGHT',self.Power,-5, 0)
-            pp:SetFont(cfg.font,18,"THINOUTLINE")
+            pp:SetFont(cfg.font,cfg.smallfontsize,"THINOUTLINE")
             --Name:SetWordWrap(false)
             self:Tag(pp, '[h:pp]')
 
             local hp = self.StringParent:CreateFontString(nil, 'OVERLAY')
             hp:SetPoint('LEFT',self.Health,5,0)
-            hp:SetFont(cfg.font,18,"THINOUTLINE")
+            hp:SetFont(cfg.font,cfg.mainfontsize,"THINOUTLINE")
             self:Tag(hp, '[h:hp]')
         end
         end,
     target = function(self)
         --target specific code goes here
             local Name = self.StringParent:CreateFontString(nil, 'OVERLAY')
-            Name:SetPoint('LEFT',self.Health,"RIGHT", 30, 0)
-            Name:SetFont(cfg.font,18,"THINOUTLINE")
+            Name:SetPoint('LEFT',self.Health,"RIGHT", 25, 0)
+            Name:SetFont(cfg.font,cfg.mainfontsize,"THINOUTLINE")
             --Name:SetWordWrap(false)
-            self:Tag(Name, '[name]')
+            self:Tag(Name, '[h:lvldef][name]')
         if(cfg.numbers) then
             local lvl = self.StringParent:CreateFontString(nil, 'OVERLAY')
             lvl:SetPoint('RIGHT', self.Health,'RIGHT',0,0)
-            lvl:SetFont(cfg.font,18,"THINOUTLINE")
-            self:Tag(lvl, '[h:lvldef]')
+            lvl:SetFont(cfg.font,cfg.smallfontsize,"THINOUTLINE")
+            self:Tag(lvl, '')
 
             local hp = self.StringParent:CreateFontString(nil, 'OVERLAY')
             hp:SetPoint('LEFT',self.Health,5,0)
-            hp:SetFont(cfg.font,18,"THINOUTLINE")
+            hp:SetFont(cfg.font,cfg.smallfontsize,"THINOUTLINE")
             self:Tag(hp, '[h:hp]')
         end
         local Castbar = CreateFrame('StatusBar', nil, self)
@@ -149,19 +149,27 @@ local UnitSpecific = {
         Icon:SetAlpha(1)
         Icon:SetSize(20, 20)
         Icon:SetTexCoord(0.08, 0.8, 0.08, 0.8)
-        Icon:SetPoint('RIGHT', Castbar, 'LEFT',-5,0)
+        Icon:SetPoint('LEFT', Castbar, 'RIGHT',-23,0)
 
-        
-        local Shield = self.cbIconParent:CreateTexture(nil, 'OVERLAY')
-        --Shield:SetPoint()
-        Shield:SetTexture(texture)
+        -- Add a timer
+        local Time = self.cbIconParent:CreateFontString(nil, 'OVERLAY')
+        Time:SetFont(cfg.font,cfg.smallfontsize,"THINOUTLINE")
+        Time:SetPoint('RIGHT', self.Health,-30,0)
+
+        local Shield = CreateFrame('Frame', nil, self)
         Shield:SetSize(40,40)
         Shield:SetAlpha(0)
-        --Shield:SetSize(30, 60)
         Shield:SetPoint('RIGHT', Castbar, 'LEFT', -5, 0)
-        Castbar.interruptIcon = Shield
+        self.Shield = Shield
+        ShieldTexture = self.Shield:CreateTexture(nil, 'OVERLAY')
+        ShieldTexture:SetAllPoints(Shield)
+        ShieldTexture:SetTexture(texture)
+        
+        ShieldTexture:SetSize(30, 60)
+       
+        --Castbar.interruptIcon = Shield
         Castbar.Icon = Icon
-        --Castbar.Shield = Shield
+        
         Castbar.Time = Time
         self.Castbar = Castbar
         Castbar.PostCastStart = ns.PostCastbarUpdate
@@ -203,14 +211,14 @@ local UnitSpecific = {
             -- Party specific layout code.
             local PartyName = self.StringParent:CreateFontString(nil, 'OVERLAY')
             PartyName:SetPoint('LEFT',self.GroupRoleIndicator,"LEFT", 20, 0)
-            PartyName:SetFont(cfg.font,12,"THINOUTLINE")
+            PartyName:SetFont(cfg.font,cfg.smallfontsize,"THINOUTLINE")
             self.PartyName = PartyName
             
             self:Tag(PartyName, '[raidcolor][name]')
 
             local partyHP = self.StringParent:CreateFontString(nil, 'OVERLAY')
             partyHP:SetPoint("LEFT",self.PartyName,"RIGHT",0,0)
-            partyHP:SetFont(cfg.font, 12, "THINOUTLINE")
+            partyHP:SetFont(cfg.font, cfg.smallfontsize, "THINOUTLINE")
             self:Tag(partyHP, '[h:hpcper]')
             
         end
@@ -235,7 +243,7 @@ local UnitSpecific = {
             local Background = sqHealth:CreateTexture(nil, 'BACKGROUND')
             Background:SetAllPoints()
             Background:SetTexture(texture)
-            Background:SetColorTexture(0.1,0.1,0.1,1)
+            Background:SetColorTexture(0,0,0,1)
             Background:SetAlpha(1)
 
             -- Register it with oUF
@@ -295,7 +303,7 @@ local Shared = function(self, unit)
     Health:SetStatusBarTexture(cfg.texture)
     Health:SetStatusBarColor(1, 0, 0)
     Health:SetReverseFill(false)
-    Health:SetFrameLevel(2)
+    --Health:SetFrameLevel(2)
     Health:SetAlpha(1)
     Health.frequentUpdates = true
     Health:SetReverseFill(true)
@@ -308,7 +316,7 @@ local Shared = function(self, unit)
     local Background = Health:CreateTexture(nil, 'BACKGROUND')
     Background:SetAllPoints()
     Background:SetTexture(texture)
-    Background:SetColorTexture(0.1,0.1,0.1,1)
+    Background:SetColorTexture(0,0,0,1)
     Background:SetAlpha(1)
     -- Make the background darker.
     --Background.multiplier = .5
@@ -338,13 +346,14 @@ end
 
 
 
-oUF:RegisterStyle("plainsimple", Shared)
+oUF:RegisterStyle("h", Shared)
 oUF:Factory(function(self)
 
-     self:SetActiveStyle("plainsimple")
-     self:Spawn("target"):SetPoint("CENTER", 0, -150)
-     self:Spawn("player"):SetPoint('CENTER', 0, -180)
-     self:Spawn("targettarget"):SetPoint("RIGHT", oUF_plainsimpleTarget,"LEFT", -20,0)
+     self:SetActiveStyle("h")
+     self:Spawn("target"):SetPoint("CENTER", cfg.playerX + cfg.offsetX, cfg.playerY + cfg.offsetY)
+     self:Spawn("player"):SetPoint('CENTER', cfg.playerX, cfg.playerY)
+     self:Spawn("targettarget"):SetPoint("RIGHT", oUF_hTarget,"LEFT", -25,0)
+     self:Spawn("focus"):SetPoint("RIGHT",oUF_hPlayer,"LEFT",-25,0)
 
      -- oUF:SpawnHeader(overrideName, overrideTemplate, visibility, attributes ...)
      local party = self:SpawnHeader(nil, nil, 'raid,party,solo',

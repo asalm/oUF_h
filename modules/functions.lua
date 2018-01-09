@@ -37,10 +37,13 @@ end
 
 function ns:PostCastbarUpdate(element, unit)
 	--local cb = element.Castbar
-	if(not element.isInterruptable)then
-		self.cbIconParent.Shield:SetAlpha(1)
+
+	local uf = self:GetParent("cbIconParent")
+
+	if(element.isInterruptable)then
+		uf.Shield:SetAlpha(1)
 	else
-		self.cbIconParent.Shield:SetAlpha(0)
+		uf.Shield:SetAlpha(0)
 	end
 end
 
